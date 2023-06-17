@@ -1,4 +1,6 @@
 @echo off
+set "scriptver=0.0.2"
+title Yuzu-Updater %scriptver%
 set dlfile=%temp%\yuzu.zip
 set dirmain=yuzu
 set ddmain=yuzu-windows-msvc
@@ -6,6 +8,10 @@ set linkmain=yuzu-emu/yuzu-mainline
 set dirpine=yuzu-ea
 set ddpine=yuzu-windows-msvc-early-access
 set linkpine=pineappleEA/pineapple-src
+set shaderp=user\shader
+set shadera=%AppData%\yuzu\shader
+set "cc=_"
+
 goto :START
 
 :START
@@ -47,7 +53,10 @@ echo.
 echo     Current online %diryuzu% version - %v%
 echo     Current file version - %oldv%
 echo.
-choice /C:123 /N /M "   Do you want update %diryuzu% to ver - %v%? [1 - Yes, 2 - No, 3 - Exit]: "
+echo     [%cc%] - Clean Shader Folder (press "4" to toggle activate/deactivate)
+echo.
+choice /C:1234 /N /M "   Do you want update %diryuzu% to ver - %v%? [1 - Yes, 2 - No, 3 - Exit]: "
+if errorlevel 4 goto:SWITCH
 if errorlevel 3 goto exit
 if errorlevel 2 goto:START
 if errorlevel 1 goto:DOWNLOAD
@@ -62,4 +71,22 @@ Xcopy .\%defdir%\ .\%diryuzu% /E /H /C /I /Y
 del /f /q %dlfile%
 rmdir /s /q .\%defdir%
 echo %v% > .\%diryuzu%\ver.txt
+if %cc%==x call :SHADERCLEAN
+set "cc=_"
 goto :START
+
+:SHADERCLEAN
+if not exist .\%diryuzu%\%shaderp% (
+    rmdir /s /q %shadera%
+    ) else (
+    rmdir /s /q .\%diryuzu%\%shaderp%
+)
+goto :EOF
+
+:SWITCH
+if %cc% ==_ (
+        set "cc=x"
+    ) else (
+        set "cc=_"
+    )
+goto :CHECK_VER
