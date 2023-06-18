@@ -1,5 +1,5 @@
 @echo off
-set "scriptver=0.0.3"
+set "scriptver=0.0.4"
 title Yuzu-Updater %scriptver%
 set dlfile=%temp%\yuzu.zip
 set dirmain=yuzu
@@ -10,12 +10,12 @@ set ddpine=yuzu-windows-msvc-early-access
 set linkpine=pineappleEA/pineapple-src
 set shaderp=user\shader
 set shadera=%AppData%\yuzu\shader
-set "cc=_"
-set "it=standard"
-
 goto :START
 
 :START
+set "bp=x"
+set "cc=_"
+set "it=standard"
 cls
 echo.
 echo          **Yuzu Installer/Updater**
@@ -56,15 +56,18 @@ echo     Current online %diryuzu% version - %v%
 echo     Current file version - %oldv%
 echo.
 echo     [%cc%] - Clean Shader Folder (press "5" to toggle activate/deactivate)
+echo     [%bp%] - Backup Profile Folder (press "6" to toggle activate/deactivate)
 echo.
-choice /C:12345 /N /M " Do you want update %diryuzu% to ver - %v%? [1 - Yes, 2 - No, 3 - Exit]: "
-if errorlevel 5 goto:SWITCH
+choice /C:123456 /N /M " Do you want update %diryuzu% to ver - %v%? [1 - Yes, 2 - No, 3 - Exit]: "
+if errorlevel 6 goto:SWITCH_BP
+if errorlevel 5 goto:SWITCH_CC
 if errorlevel 4 goto:PORTABLE
 if errorlevel 3 goto exit
 if errorlevel 2 goto:START
 if errorlevel 1 goto:DOWNLOAD
 
 :DOWNLOAD
+if %bp%==x call :BACKUP
 for /f "tokens=2 delims= " %%a in ('curl -s %link% ^| findstr /L "browser_download_url" ^|findstr /V "debug" ^| findstr /L ".zip"' ) do ( set dl=%%a )
 if not exist %dlfile% (
     powershell -command "& {Invoke-WebRequest -Uri %dl% -OutFile %dlfile% } 
@@ -78,25 +81,7 @@ if %it%==portable (
     if not exist .\%diryuzu%\user mkdir .\%diryuzu%\user
 )
 if %cc%==x call :SHADERCLEAN
-set "cc=_"
-set "it=standard"
 goto :START
-
-:SHADERCLEAN
-if %it%==portable (
-    rmdir /s /q .\%diryuzu%\%shaderp%
-    ) else (
-    rmdir /s /q %shadera%    
-)
-goto :EOF
-
-:SWITCH
-if %cc% ==_ (
-        set "cc=x"
-    ) else (
-        set "cc=_"
-    )
-goto :CHECK_VER
 
 :PORTABLE
 if %it% ==standard (
@@ -105,3 +90,35 @@ if %it% ==standard (
         set "it=standard"
     )
 goto :CHECK_VER
+
+:SWITCH_BP
+if %bp% ==x (
+        set "bp=_"
+    ) else (
+        set "bp=x"
+    )
+goto :CHECK_VER
+
+:BACKUP
+if %it%==portable (
+   tar -a -cf .\profile-backup.zip -C .\%diryuzu%\ user 
+    ) else (
+    tar -a -cf .\profile-backup.zip -C %APPDATA% yuzu
+)
+goto :EOF
+
+:SWITCH_CC
+if %cc% ==_ (
+        set "cc=x"
+    ) else (
+        set "cc=_"
+    )
+goto :CHECK_VER
+
+:SHADERCLEAN
+if %it%==portable (
+    rmdir /s /q .\%diryuzu%\%shaderp%
+    ) else (
+    rmdir /s /q %shadera%    
+)
+goto :EOF
