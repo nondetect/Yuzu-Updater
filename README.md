@@ -1,6 +1,6 @@
 # Yuzu-Updater
 Run script to download/update Yuzu Emulator
-
+![Screenshot of Yuzu-Updater](https://i.imgur.com/hSIZawb.png)   
 # Yuzu-Updater Usage
 Place _Yuzu-Updater.bat_ to folder where you store your Yuzu emulator and run script 
 
