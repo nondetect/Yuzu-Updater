@@ -8,4 +8,9 @@ Folder should named like:
 - _yuzu_ - for Yuzu mainline
 - _yuzu-ea_ - for Yuzu Early Access 
 
+for example:
+- D:\Emulators\yuzu\
+- D:\Emulators\yuzu-ea\
+- D:\Emulators\Yuzu-updater.bat
+
 Can be run on Windows 10 (1803) from build 17063 or later
